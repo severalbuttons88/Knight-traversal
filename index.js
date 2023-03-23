@@ -1,11 +1,7 @@
-const gameBoard = (() => {
+const gameBoard = () => {
   let boardArray = [];
   let boardKnight = null;
-  let solutions = [];
 
-  const getSolutions = () => {
-    return solutions;
-  };
   const queue = () => {
     let queueStack = [];
 
@@ -43,21 +39,13 @@ const gameBoard = (() => {
   function createKnight() {
     boardKnight = knight();
   }
-  const getBoard = () => {
-    return boardArray;
-  };
+
   const generateBoard = (() => {
     const rows = 8;
     const columns = 8;
     const preGenBoardRows = [];
 
-    /* 
-        for (let i = 0; i < rows; i++) {
-        preGenBoardRows[i] = [];
-        for (let a = 0; a < columns; a++) {
-            preGenBoardRows[i][a] = a;
-        }
-        } */
+
     for (let y = 0; y < rows; y++) {
       for (let c = 0; c < columns; c++) {
         preGenBoardRows.push([y, c]);
@@ -136,7 +124,6 @@ const gameBoard = (() => {
       let at = endData;
       let firstLoop = true;
       while (at !== null && safe < 10) {
-        console.log(at);
         safe++;
         at = at.replace(/"|'/g, "");
 
@@ -178,7 +165,6 @@ const gameBoard = (() => {
           }
         }
       }
-      console.log(prev);
       return prev;
     }
     const addEdge = (vertex, targetVertex) => {
@@ -199,7 +185,6 @@ const gameBoard = (() => {
       nodePaths.push(start);
       while (foundEnd === false && graphQueue.isEmpty() === false) {
         if (safetyCounter === 5000) {
-          console.log("error");
           break;
         }
         let currentPossibleMoves = boardKnight.possibleMoves(
@@ -225,86 +210,7 @@ const gameBoard = (() => {
       }
       return nodePaths;
     };
-    const dfs = (start) => {
-      let visitedNodes = {};
-      let startData = JSON.stringify(start);
-      dfsHelper(startData, visitedNodes);
 
-      function dfsHelper(vertex, visited) {
-        visited[vertex] = true;
-
-        let getNeighbor = adjacentList.get(vertex);
-
-        for (let i in getNeighbor) {
-          let element = getNeighbor[i];
-          if (!visited[element]) {
-            dfsHelper(element, visited);
-          }
-        }
-      }
-    };
-
-    const testFunc = (start, end) => {
-      //testing if this works
-      let startData = JSON.stringify(start);
-      let endData = JSON.stringify(end);
-      let path = [];
-      let limiter = {};
-      let q = queue();
-      let foundEndNode = false;
-      let possibleMoves = movesToEnd(start, end);
-      limiter[startData] = true;
-      q.enqueue(start);
-      path.push(startData);
-
-      while (q.isEmpty() === false && foundEndNode === false) {
-        let currentVertex = JSON.stringify(q.front());
-        currentVertex = currentVertex.replace(/['"]+/g, "");
-        q.dequeue();
-
-        let getList = adjacentList.get(currentVertex);
-        if (endData.includes(currentVertex)) {
-          foundEndNode = true;
-          path.push(currentVertex);
-          q.removeQueue();
-          break;
-        }
-        for (let i in getList) {
-          let neighbor = JSON.stringify(getList[i]);
-          neighbor = neighbor.replace(/['"]+/g, "");
-          if (!limiter[neighbor]) {
-            limiter[neighbor] = true;
-
-            let possibleString = JSON.stringify(possibleMoves);
-            let contains = false;
-            path.push(neighbor);
-            q.enqueue(neighbor);
-          }
-        }
-      }
-      return path;
-    };
-
-    const bfs = (startVal) => {
-      let startData = JSON.stringify(startVal);
-      let visited = {};
-      let q = queue();
-      visited[startData] = true;
-      q.enqueue(startData);
-      while (!q.isEmpty()) {
-        let getElement = q.front();
-        q.dequeue();
-        let getList = adjacentList.get(getElement);
-
-        for (let i in getList) {
-          let val = getList[i];
-          if (!visited[val]) {
-            visited[val] = true;
-            q.enqueue(val);
-          }
-        }
-      }
-    };
     const generateEdges = (board, knight) => {
       for (let i = 0; i < board.length; i++) {
         let currentPositionMoves = knight.possibleMoves(board[i]);
@@ -320,12 +226,8 @@ const gameBoard = (() => {
       adjacentList,
       addEdge,
       addVertex,
-
-      bfs,
       generateEdges,
-      testFunc,
       realSearch,
-
       movesToEnd,
     };
   };
@@ -338,33 +240,25 @@ const gameBoard = (() => {
   }
   boardGraph.generateEdges(boardArray, boardKnight);
   function runPath(start, end) {
-  let ranPath = boardGraph.realSearch(start, end);
-  let fixedArray = []
-  for (let a = 0; a < ranPath.length; a++) {
+    let ranPath = boardGraph.realSearch(start, end);
+    let fixedArray = [];
+    for (let a = 0; a < ranPath.length; a++) {
+      let array = JSON.parse(ranPath[a]);
 
-    let array = JSON.parse(ranPath[a])
-
-    for(let n = 0; n < array.length; n++) {
+      for (let n = 0; n < array.length; n++) {
         let val = array[n] + 1;
-        array[n] = val
+        array[n] = val;
+      }
+      fixedArray.push(array);
     }
-    fixedArray.push(array);
-    console.log(array);
 
+    let stringToCut = JSON.stringify(fixedArray);
+    let result = stringToCut.substring(1, stringToCut.length - 1);
+    return result;
   }
-  console.log(fixedArray)
-  let stringToCut = JSON.stringify(fixedArray);
-  let result = stringToCut.substring(1, stringToCut.length-1);
-    return result
-  }
- //graph with 64 vertex for board
 
-  
-
-return {runPath}
-
-});
+  return { runPath };
+};
 let board1 = gameBoard();
-let path = board1.runPath([0, 0], [7, 7])
+let path = board1.runPath([0, 0], [7, 7]);
 console.log(path);
-
