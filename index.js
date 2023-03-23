@@ -138,14 +138,13 @@ const gameBoard = (() => {
       while (at !== null && safe < 10) {
         console.log(at);
         safe++;
-       at = at.replace(/"|'/g, '')
+        at = at.replace(/"|'/g, "");
 
-       path.push(at);
+        path.push(at);
         at = prev[at];
-
       }
-path.reverse();
-     return path
+      path.reverse();
+      return path;
     }
     function solve(start, end, testList) {
       let q = queue();
@@ -332,18 +331,40 @@ path.reverse();
   };
 
   createKnight();
-  let boardGraph = graph(64); //graph with 64 vertex for board
+  let boardGraph = graph(64);
   for (index of boardArray) {
     //add board to graph
     boardGraph.addVertex(index);
   }
   boardGraph.generateEdges(boardArray, boardKnight);
-  let g = boardGraph.testFunc([5, 5], [6, 6]);
-  let pathGraph = graph(64);
-  for (index of g) {
-    pathGraph.addVertex(index, true, index);
+  function runPath(start, end) {
+  let ranPath = boardGraph.realSearch(start, end);
+  let fixedArray = []
+  for (let a = 0; a < ranPath.length; a++) {
+
+    let array = JSON.parse(ranPath[a])
+
+    for(let n = 0; n < array.length; n++) {
+        let val = array[n] + 1;
+        array[n] = val
+    }
+    fixedArray.push(array);
+    console.log(array);
+
   }
-  console.log(boardGraph.realSearch([6, 5], [1, 2], boardGraph));
-  let testArray = boardGraph.movesToEnd([2, 5], [2, 2]);
-  let testG = graph(64);
-})();
+  console.log(fixedArray)
+  let stringToCut = JSON.stringify(fixedArray);
+  let result = stringToCut.substring(1, stringToCut.length-1);
+    return result
+  }
+ //graph with 64 vertex for board
+
+  
+
+return {runPath}
+
+});
+let board1 = gameBoard();
+let path = board1.runPath([0, 0], [7, 7])
+console.log(path);
+
