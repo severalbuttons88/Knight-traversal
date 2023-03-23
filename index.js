@@ -51,11 +51,18 @@ const gameBoard = (() => {
     const columns = 8;
     const preGenBoardRows = [];
 
-    for (let i = 0; i < rows; i++) {
-      preGenBoardRows[i] = [];
-      for (let a = 0; a < columns; a++) {
-        preGenBoardRows[i][a] = a;
-      }
+
+    /* 
+        for (let i = 0; i < rows; i++) {
+        preGenBoardRows[i] = [];
+        for (let a = 0; a < columns; a++) {
+            preGenBoardRows[i][a] = a;
+        }
+        } */
+    for ( let y = 0; y < rows; y++) {
+        for (let c = 0; c < columns; c++) {
+            preGenBoardRows.push([y, c]);
+        }
     }
     boardArray = preGenBoardRows;
   })();
@@ -106,18 +113,47 @@ const gameBoard = (() => {
     return { setCurrentPosition, getPosition, possibleMoves };
   };
   const graph = (vertexAmount) => {
-    let numberOfVertices = vertexAmount;     //AKA number of nodes
+    let numberOfVertices = vertexAmount; //AKA number of nodes
     let adjacentList = new Map(); //lets you store keys to adjacent items
     const addVertex = (vertex) => {
-      adjacentList.set(v, []); //Create a adjacent list with an empty array;
+      adjacentList.set(vertex, []); //Create a adjacent list with an empty array;
     };
     const addEdge = (vertex, targetVertex) => {
       adjacentList.get(vertex).push(targetVertex); //gets vertex and adds a link to target, aka edge
       adjacentList.get(targetVertex).push(vertex); //Puts a link from target to original vertex since there is no direction
     };
+    const printVertexes = () => {
+      let keys = adjacentList.keys(); //gets all vertex
+      for (let vertex of keys) {
+        let getVertexValue = adjacentList.get(vertex);
 
-    return { numberOfVertices, adjacentList };
+        for (let items of getVertexValue) {
+          //gets values inside of vertex
+          console.log(`${vertex} vertex`);
+         console.log(`${items} baby`);
+
+        }
+      }
+    };
+    const bfs = (startVertex) => {
+        let visited = []
+    }
+
+    return {
+      numberOfVertices,
+      adjacentList,
+      addEdge,
+      addVertex,
+      printVertexes,
+    };
   };
 
   createKnight();
+  let boardGraph = graph(64); //graph with 64 vertex for board
+  console.log(boardArray);
+  for (index of boardArray) {
+    boardGraph.addVertex(index);
+  }
+
+boardGraph.printVertexes()
 })();
