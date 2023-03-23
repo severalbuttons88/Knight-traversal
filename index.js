@@ -51,7 +51,6 @@ const gameBoard = (() => {
     const columns = 8;
     const preGenBoardRows = [];
 
-
     /* 
         for (let i = 0; i < rows; i++) {
         preGenBoardRows[i] = [];
@@ -59,10 +58,10 @@ const gameBoard = (() => {
             preGenBoardRows[i][a] = a;
         }
         } */
-    for ( let y = 0; y < rows; y++) {
-        for (let c = 0; c < columns; c++) {
-            preGenBoardRows.push([y, c]);
-        }
+    for (let y = 0; y < rows; y++) {
+      for (let c = 0; c < columns; c++) {
+        preGenBoardRows.push([y, c]);
+      }
     }
     boardArray = preGenBoardRows;
   })();
@@ -115,12 +114,76 @@ const gameBoard = (() => {
   const graph = (vertexAmount) => {
     let numberOfVertices = vertexAmount; //AKA number of nodes
     let adjacentList = new Map(); //lets you store keys to adjacent items
-    const addVertex = (vertex) => {
-      adjacentList.set(vertex, []); //Create a adjacent list with an empty array;
+    const addVertex = (vertex, isString = false, optionalValue = []) => {
+      if (isString === false) {
+        let vertexString = JSON.stringify(vertex);
+        adjacentList.set(vertexString, []); //Create a adjacent list with an empty array;
+      } else {
+        adjacentList.set(vertex, optionalValue);
+      }
     };
+    let foundEnd = false;
+    const realSearch = (start, end) => {
+        let testVal = movesToEnd(start, end);
+        console.log(testVal);
+        for(let i = 0; i < testVal.length; i++) {
+
+        }
+      prev = solve(start, end);
+              return reconstructed(start, end, prev) 
+    };
+    function reconstructed(start, end, prev) {
+      startData = JSON.stringify(start);
+      endData = JSON.stringify(end);
+      let path = [];
+      for (at = endData; at !== null; at = prev[at]) {
+        path.push(at);
+      }
+      path.reverse();
+      if (path[0] === start) {
+        return path;
+      } else {
+        path = [];
+        return path;
+      }
+    }
+    function solve(start, end) {
+      let q = queue();
+
+      let visited = {};
+      let startString = JSON.stringify(start);
+      q.enqueue(start);
+      visited[startString] = true;
+
+      let prev = {};
+      let keyVals = adjacentList.keys();
+      let count = 0;
+      for (l of keyVals) {
+        prev[l] = null;
+      }
+      console.log(prev)
+
+      while (!q.isEmpty()) {
+        vertex = JSON.stringify(q.front());
+        q.dequeue();
+        let movesAround = adjacentList.get(vertex);
+        if()
+        for (let i in movesAround) {
+          let neighbor = movesAround[i];
+          if (!visited[neighbor]) {
+            q.enqueue(neighbor);
+            visited[neighbor] = true;
+            prev[neighbor] = vertex;
+          }
+        }
+        return prev;
+      }
+    }
     const addEdge = (vertex, targetVertex) => {
-      adjacentList.get(vertex).push(targetVertex); //gets vertex and adds a link to target, aka edge
-      adjacentList.get(targetVertex).push(vertex); //Puts a link from target to original vertex since there is no direction
+      let vertexData = JSON.stringify(vertex);
+      let targetData = JSON.stringify(targetVertex);
+      adjacentList.get(vertexData).push(targetData); //gets vertex and adds a link to target, aka edge
+      /*    adjacentList.get(targetData).push(vertexData); */ //Puts a link from target to original vertex since there is no direction
     };
     const printVertexes = () => {
       let keys = adjacentList.keys(); //gets all vertex
@@ -129,15 +192,135 @@ const gameBoard = (() => {
 
         for (let items of getVertexValue) {
           //gets values inside of vertex
-          console.log(`${vertex} vertex`);
-         console.log(`${items} baby`);
-
         }
       }
     };
-    const bfs = (startVertex) => {
-        let visited = []
-    }
+    const movesToEnd = (start, end) => {
+      let graphQueue = queue();
+      let nodePaths = [];
+      let foundEnd = false;
+      let safetyCounter = 0;
+      let stringEnd = JSON.stringify(end);
+
+      graphQueue.enqueue(start);
+      nodePaths.push(start);
+      while (foundEnd === false && graphQueue.isEmpty() === false) {
+        if (safetyCounter === 5000) {
+          console.log("error");
+          break;
+        }
+        let currentPossibleMoves = boardKnight.possibleMoves(
+          graphQueue.front()
+        );
+
+        let stringOldMoves = JSON.stringify(nodePaths);
+
+        for (let i = 0; i < currentPossibleMoves.length; i++) {
+          let stringMoves = JSON.stringify(currentPossibleMoves[i]);
+          if (stringMoves.includes(stringEnd)) {
+            nodePaths.push(currentPossibleMoves[i]);
+            nodePaths.push(null);
+            foundEnd = true;
+            break;
+          }
+          if (stringOldMoves.includes(stringMoves) === false) {
+            nodePaths.push(currentPossibleMoves[i]);
+            graphQueue.enqueue(currentPossibleMoves[i]);
+          }
+        }
+        graphQueue.dequeue();
+      }
+      return nodePaths;
+    };
+    const dfs = (start) => {
+      let visitedNodes = {};
+      let startData = JSON.stringify(start);
+      dfsHelper(startData, visitedNodes);
+
+      function dfsHelper(vertex, visited) {
+        visited[vertex] = true;
+
+        let getNeighbor = adjacentList.get(vertex);
+
+        for (let i in getNeighbor) {
+          let element = getNeighbor[i];
+          if (!visited[element]) {
+            dfsHelper(element, visited);
+          }
+        }
+      }
+    };
+
+    const testFunc = (start, end) => {
+      //testing if this works
+      let startData = JSON.stringify(start);
+      let endData = JSON.stringify(end);
+      let path = [];
+      let limiter = {};
+      let q = queue();
+      let foundEndNode = false;
+      let possibleMoves = movesToEnd(start, end);
+      limiter[startData] = true;
+      q.enqueue(start);
+      path.push(startData);
+
+      while (q.isEmpty() === false && foundEndNode === false) {
+        let currentVertex = JSON.stringify(q.front());
+        currentVertex = currentVertex.replace(/['"]+/g, "");
+        q.dequeue();
+
+        let getList = adjacentList.get(currentVertex);
+        if (endData.includes(currentVertex)) {
+          foundEndNode = true;
+          path.push(currentVertex);
+          q.removeQueue();
+          break;
+        }
+        for (let i in getList) {
+          let neighbor = JSON.stringify(getList[i]);
+          neighbor = neighbor.replace(/['"]+/g, "");
+          if (!limiter[neighbor]) {
+            limiter[neighbor] = true;
+
+            let possibleString = JSON.stringify(possibleMoves);
+            let contains = false;
+            path.push(neighbor);
+            q.enqueue(neighbor);
+          }
+        }
+      }
+      return path;
+    };
+
+    const bfs = (startVal) => {
+      let startData = JSON.stringify(startVal);
+      let visited = {};
+      let q = queue();
+      visited[startData] = true;
+      q.enqueue(startData);
+      while (!q.isEmpty()) {
+        let getElement = q.front();
+        q.dequeue();
+        let getList = adjacentList.get(getElement);
+
+        for (let i in getList) {
+          let val = getList[i];
+          if (!visited[val]) {
+            visited[val] = true;
+            q.enqueue(val);
+          }
+        }
+      }
+    };
+    const generateEdges = (board, knight) => {
+      for (let i = 0; i < board.length; i++) {
+        let currentPositionMoves = knight.possibleMoves(board[i]);
+        let currentPosition = board[i];
+        for (let j = 0; j < currentPositionMoves.length; j++) {
+          addEdge(currentPosition, currentPositionMoves[j]);
+        }
+      }
+    };
 
     return {
       numberOfVertices,
@@ -145,15 +328,24 @@ const gameBoard = (() => {
       addEdge,
       addVertex,
       printVertexes,
+      bfs,
+      generateEdges,
+      testFunc,
+      realSearch,
     };
   };
 
   createKnight();
   let boardGraph = graph(64); //graph with 64 vertex for board
-  console.log(boardArray);
   for (index of boardArray) {
+    //add board to graph
     boardGraph.addVertex(index);
   }
-
-boardGraph.printVertexes()
+  boardGraph.generateEdges(boardArray, boardKnight);
+  let g = boardGraph.testFunc([5, 5], [6, 6]);
+  let pathGraph = graph(64);
+  for (index of g) {
+    pathGraph.addVertex(index, true, index);
+  }
+  console.log(boardGraph.realSearch([5, 5], [2, 2], boardGraph));
 })();
