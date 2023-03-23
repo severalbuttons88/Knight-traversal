@@ -122,32 +122,32 @@ const gameBoard = (() => {
         adjacentList.set(vertex, optionalValue);
       }
     };
-    let foundEnd = false;
-    const realSearch = (start, end) => {
-        let testVal = movesToEnd(start, end);
-        console.log(testVal);
-        for(let i = 0; i < testVal.length; i++) {
-
-        }
-      prev = solve(start, end);
-              return reconstructed(start, end, prev) 
+    const realSearch = (start, end, listTest) => {
+      prev = solve(start, end, listTest);
+      return reconstructed(start, end, prev);
     };
     function reconstructed(start, end, prev) {
       startData = JSON.stringify(start);
       endData = JSON.stringify(end);
+      start;
       let path = [];
-      for (at = endData; at !== null; at = prev[at]) {
-        path.push(at);
+      startData = `"${startData}"`;
+      let safe = 0;
+      let at = endData;
+      let firstLoop = true;
+      while (at !== null && safe < 10) {
+        console.log(at);
+        safe++;
+       at = at.replace(/"|'/g, '')
+
+       path.push(at);
+        at = prev[at];
+
       }
-      path.reverse();
-      if (path[0] === start) {
-        return path;
-      } else {
-        path = [];
-        return path;
-      }
+path.reverse();
+     return path
     }
-    function solve(start, end) {
+    function solve(start, end, testList) {
       let q = queue();
 
       let visited = {};
@@ -156,18 +156,20 @@ const gameBoard = (() => {
       visited[startString] = true;
 
       let prev = {};
+
       let keyVals = adjacentList.keys();
       let count = 0;
       for (l of keyVals) {
         prev[l] = null;
       }
-      console.log(prev)
-
-      while (!q.isEmpty()) {
+      /*       prev[startString] = startString */
+      let safe = 0;
+      while (q.isEmpty() === false && safe < 200) {
+        safe++;
         vertex = JSON.stringify(q.front());
         q.dequeue();
-        let movesAround = adjacentList.get(vertex);
-        if()
+        let removedQuotes = vertex.replace(/['"]+/g, "");
+        let movesAround = adjacentList.get(removedQuotes);
         for (let i in movesAround) {
           let neighbor = movesAround[i];
           if (!visited[neighbor]) {
@@ -176,8 +178,9 @@ const gameBoard = (() => {
             prev[neighbor] = vertex;
           }
         }
-        return prev;
       }
+      console.log(prev);
+      return prev;
     }
     const addEdge = (vertex, targetVertex) => {
       let vertexData = JSON.stringify(vertex);
@@ -185,16 +188,7 @@ const gameBoard = (() => {
       adjacentList.get(vertexData).push(targetData); //gets vertex and adds a link to target, aka edge
       /*    adjacentList.get(targetData).push(vertexData); */ //Puts a link from target to original vertex since there is no direction
     };
-    const printVertexes = () => {
-      let keys = adjacentList.keys(); //gets all vertex
-      for (let vertex of keys) {
-        let getVertexValue = adjacentList.get(vertex);
 
-        for (let items of getVertexValue) {
-          //gets values inside of vertex
-        }
-      }
-    };
     const movesToEnd = (start, end) => {
       let graphQueue = queue();
       let nodePaths = [];
@@ -327,11 +321,13 @@ const gameBoard = (() => {
       adjacentList,
       addEdge,
       addVertex,
-      printVertexes,
+
       bfs,
       generateEdges,
       testFunc,
       realSearch,
+
+      movesToEnd,
     };
   };
 
@@ -347,5 +343,7 @@ const gameBoard = (() => {
   for (index of g) {
     pathGraph.addVertex(index, true, index);
   }
-  console.log(boardGraph.realSearch([5, 5], [2, 2], boardGraph));
+  console.log(boardGraph.realSearch([6, 5], [1, 2], boardGraph));
+  let testArray = boardGraph.movesToEnd([2, 5], [2, 2]);
+  let testG = graph(64);
 })();
