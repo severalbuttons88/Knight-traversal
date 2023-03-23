@@ -240,6 +240,12 @@ const gameBoard = () => {
   }
   boardGraph.generateEdges(boardArray, boardKnight);
   function runPath(start, end) {
+    for(let s = 0; s < start.length; s++) {    //make it easier for human input
+       start[s] = start[s] - 1;
+    }
+    for(let s = 0; s < end.length; s++) {
+        end[s] = end[s] - 1;
+     }
     let ranPath = boardGraph.realSearch(start, end);
     let fixedArray = [];
     for (let a = 0; a < ranPath.length; a++) {
@@ -260,5 +266,5 @@ const gameBoard = () => {
   return { runPath };
 };
 let board1 = gameBoard();
-let path = board1.runPath([0, 0], [7, 7]);
+let path = board1.runPath([2, 4], [8, 8]);
 console.log(path);
