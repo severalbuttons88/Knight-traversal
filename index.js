@@ -1,6 +1,11 @@
 const gameBoard = (() => {
   let boardArray = [];
   let boardKnight = null;
+  let solutions = [];
+
+  const getSolutions = () => {
+    return solutions;
+  };
   const queue = () => {
     let queueStack = [];
 
@@ -56,22 +61,17 @@ const gameBoard = (() => {
   })();
 
   const knight = () => {
-    let currentPosition = [6, 2];
+    let currentPosition = [2, 2]; //knight pos
     const setCurrentPosition = (position) => {
       currentPosition = position;
     };
     const getPosition = () => {
       return currentPosition;
     };
-    const moveNode = (position) => {
-      let value = position;
-      let surroundingNode = [];
-      return { position, surroundingNode, value };
-    };
 
     const possibleMoves = (currentPosition) => {
-      const xMoves = [2, 1, -1, -2, -2, -1, -1, 2];
-      const yMoves = [1, 2, 2, 1, -1, -2, -2, -1];
+      const xMoves = [-1, 1, 2, -2, -2, -1, 2, 1];
+      const yMoves = [2, 2, 1, 1, -1, -2, -1, -2];
       const xPosition = currentPosition[0];
       const yPosition = currentPosition[1];
 
@@ -79,14 +79,15 @@ const gameBoard = (() => {
       let invalidMove = false;
 
       for (let i = 0; i < 8; i++) {
-        let xCombos = xPosition + xMoves[i];
-        let yCombos = xPosition + yMoves[i];
+        invalidMove = false;
+        let xIndex = xMoves[i];
+        let yIndex = yMoves[i];
+        let xCombos = xPosition + xIndex;
+        let yCombos = yPosition + yIndex;
 
-        if (xCombos >= 0 === true && xCombos < 8 === true) {
-          let x = xCombos;
+        if (xCombos >= 0 === true && xCombos <= 7 === true) {
           invalidMove = false;
-          if (yCombos >= 0 === true && yCombos < 8 === true) {
-            let y = yCombos;
+          if (yCombos >= 0 === true && yCombos <= 7 === true) {
             invalidMove = false;
           } else {
             invalidMove = true;
@@ -98,48 +99,28 @@ const gameBoard = (() => {
         if (invalidMove === false && xCombos !== -1 && yCombos !== -1) {
           possibleMoves.push([xCombos, yCombos]);
         }
-        invalidMove = false;
       }
 
       return possibleMoves;
     };
-    return { setCurrentPosition, getPosition, possibleMoves, moveNode };
+    return { setCurrentPosition, getPosition, possibleMoves };
   };
-  const createGraph = (start, end) => {
-    let graphQueue = queue();
-    let nodePaths = [];
-    let foundEnd = false;
-    let safetyCounter = 0;
-    let stringEnd = JSON.stringify(end);
-
-    graphQueue.enqueue(start);
-    nodePaths.push(start);
-    while (foundEnd === false && graphQueue.isEmpty() === false) {
-      if (safetyCounter === 5000) {
-        console.log("error");
-        break;
+  const graph = (verticeAmount) => {
+    let numberOfVertices = verticeAmount;
+    let adjacentList = new Map();       //lets you store keys to adjacment items
+    const addVertex = (vertex) => {
+         adjacentList.set(v, []);           //Create a adjacent list with an empty array;
       }
-      let currentPossibleMoves = boardKnight.possibleMoves(graphQueue.front());
+    const addEdge = (vertex, targetVertex) => {
+        adjacentList.get(vertex).push(targetVertex);   //gets vertex and adds a link to target, aka edge
+        adjacentList.get(targetVertex).push(vertex);    //Puts a link from target to original vertex since there is no direction
 
-      let stringOldMoves = JSON.stringify(nodePaths);
-
-      for (let i = 0; i < currentPossibleMoves.length; i++) {
-        let stringMoves = JSON.stringify(currentPossibleMoves[i]);
-        if (stringMoves.includes(stringEnd)) {
-          nodePaths.push(currentPossibleMoves[i]);
-          nodePaths.push(null);
-          foundEnd = true;
-          break;
-        }
-        if (stringOldMoves.includes(stringMoves) === false) {
-          nodePaths.push(currentPossibleMoves[i]);
-          graphQueue.enqueue(currentPossibleMoves[i]);
-        }
-      }
-      graphQueue.dequeue();
     }
-    return nodePaths;
-  };
+
+
+ return {numberOfVertices, adjacentList};
+  }
+
+
   createKnight();
-  console.log(createGraph([0, 0], [5, 6]));
 })();
