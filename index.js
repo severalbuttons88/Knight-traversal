@@ -105,22 +105,19 @@ const gameBoard = (() => {
     };
     return { setCurrentPosition, getPosition, possibleMoves };
   };
-  const graph = (verticeAmount) => {
-    let numberOfVertices = verticeAmount;
-    let adjacentList = new Map();       //lets you store keys to adjacment items
+  const graph = (vertexAmount) => {
+    let numberOfVertices = vertexAmount;     //AKA number of nodes
+    let adjacentList = new Map(); //lets you store keys to adjacent items
     const addVertex = (vertex) => {
-         adjacentList.set(v, []);           //Create a adjacent list with an empty array;
-      }
+      adjacentList.set(v, []); //Create a adjacent list with an empty array;
+    };
     const addEdge = (vertex, targetVertex) => {
-        adjacentList.get(vertex).push(targetVertex);   //gets vertex and adds a link to target, aka edge
-        adjacentList.get(targetVertex).push(vertex);    //Puts a link from target to original vertex since there is no direction
+      adjacentList.get(vertex).push(targetVertex); //gets vertex and adds a link to target, aka edge
+      adjacentList.get(targetVertex).push(vertex); //Puts a link from target to original vertex since there is no direction
+    };
 
-    }
-
-
- return {numberOfVertices, adjacentList};
-  }
-
+    return { numberOfVertices, adjacentList };
+  };
 
   createKnight();
 })();
